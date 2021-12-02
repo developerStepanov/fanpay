@@ -10,14 +10,16 @@ url = 'https://funpay.ru/en/chips/16/'
 
 server_labels = {}
 window = tk.Tk()
+combobox_servers = None
 server_name = tk.StringVar()
 is_send_telegram = tk.BooleanVar()
 
 # EDITABLE
 chat_id = "820834588"
-time_refresh = 10000
-input_in_stock = 0
-input_price = 7.28
+time_refresh = 1000
+input_in_stock = 32
+input_price = 7.27
+server_id = None
 
 pattern_message = "Price:%20{price}%0AAmount:%20{amount}%0ALink:%20{link}"
 
@@ -40,9 +42,10 @@ def get_servers(root):
 
 
 def get_online_sellers(root):
-    for s in root.find_all(class_="tc-item"):
+    for s in root.find_all(class_="tc-item", attrs={"data-server": server_id}):
         seller = Seller(s['href'], int(s.find(class_="tc-amount").text.replace(" ", "")),
                         float(s.find(class_="tc-price").div.text.replace(" ₽", "")))
+        # print(seller)
 
         if s.has_attr('data-online'):
             sellers.add(seller)
@@ -88,15 +91,27 @@ def scanning():
 
 
 def start_scan():
-    global RUNNING
+    global RUNNING, server_id
     if start_scan['text'] == "Start scannning...":
         RUNNING = True
         start_scan.configure(text="Stop!")
         status_label.config(text="Running..")
+        server_id = server_labels.get(combobox_servers.get())
     else:
         RUNNING = False
         start_scan.configure(text="Start scannning...")
         status_label.config(text="has stopped...")
+        server_id = None
+        sellers.clear()
+
+
+def stop_scan():
+    global RUNNING, server_id
+    RUNNING = False
+    start_scan.configure(text="Start scannning...")
+    status_label.config(text="has stopped...")
+    server_id = None
+    sellers.clear()
 
 
 # Define here buttons to use global
@@ -106,6 +121,7 @@ status_label = tk.Label(window, text="Running..")
 
 
 def main():
+    global combobox_servers, server_id
     is_send_telegram.set(False)
     get_servers(getDataFromURL())
 
@@ -114,12 +130,13 @@ def main():
 
     combobox_servers = ttk.Combobox(window, values=list(server_labels.keys()), justify="center",
                                     textvariable=server_name, state="readonly")
-    # combobox_servers.bind('<<ComboboxSelected>>', lambda event: print(server_labels[server_name.get()]))
+    combobox_servers.bind('<<ComboboxSelected>>', lambda event: stop_scan())
     combobox_servers.grid(row=0, column=1)
-    combobox_servers.current(0)
+    # 3 == PC(STANDART)
+    combobox_servers.current(3)
+    server_id = server_labels.get(combobox_servers.get())
 
     checkButtonSendTelegram = ttk.Checkbutton(window, text="Send Telegram ", var=is_send_telegram)
-
     checkButtonSendTelegram.grid(row=0, column=2)
     start_scan.grid(row=1, column=1)
     status_label.grid(row=2, column=0)

@@ -32,3 +32,6 @@ class SellersSet:
         oldSeller.price = newSeller.price
         oldSeller.amount = newSeller.amount
         oldSeller.isSend = False
+
+    def clear(self):
+        self.set = set()
