@@ -17,7 +17,6 @@ is_send_telegram = tk.BooleanVar()
 
 # EDITABLE
 chat_id = "820834588"
-# time_refresh = 1000
 input_in_stock = tk.StringVar()
 input_price = tk.StringVar()
 server_id = None
