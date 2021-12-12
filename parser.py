@@ -35,7 +35,7 @@ def get_time_refresh():
 
 
 def getDataFromURL():
-    response = requests.get(url, headers={"accept-language": "en-US,en;q=0.5"})
+    response = requests.get(url, headers={"Cookie": "locale=ru;cy=rub;"})
     root = BeautifulSoup(response.text, 'lxml')
     return root
 
@@ -51,7 +51,6 @@ def get_online_sellers(root):
     for s in root.find_all(class_="tc-item", attrs={"data-server": server_id}):
         seller = Seller(s['href'], int(s.find(class_="tc-amount").text.replace(" ", "")),
                         float(s.find(class_="tc-price").div.text.replace(" ₽", "")))
-        # print(seller)
 
         if s.has_attr('data-online'):
             sellers.add(seller)
