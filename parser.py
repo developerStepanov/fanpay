@@ -16,14 +16,14 @@ server_name = tk.StringVar()
 is_send_telegram = tk.BooleanVar()
 
 # EDITABLE
-chat_id = "820834588"
+chat_id = "-1001533614883"
 input_in_stock = tk.StringVar()
 input_price = tk.StringVar()
 server_id = None
 
 amount_best_sellers = tk.StringVar()
 
-pattern_message = "Price:%20{price}%0AAmount:%20{amount}%0ALink:%20{link}"
+pattern_message = "Имя:%20{name}%0AЦена:%20{price}%0AКол-во:%20{amount}%0AСсылка:%20{link}"
 
 RUNNING = False  # Global flag -> when app is starting then it is alredy running
 
@@ -35,7 +35,7 @@ def get_time_refresh():
 
 
 def getDataFromURL():
-    response = requests.get(url, headers={"Cookie": "locale=ru;cy=rub;"})
+    response = requests.get(url, headers={"Cookie": "cy=rub;"})
     root = BeautifulSoup(response.text, 'lxml')
     return root
 
@@ -49,7 +49,7 @@ def get_servers(root):
 
 def get_online_sellers(root):
     for s in root.find_all(class_="tc-item", attrs={"data-server": server_id}):
-        seller = Seller(s['href'], int(s.find(class_="tc-amount").text.replace(" ", "")),
+        seller = Seller(s.find("span", class_="pseudo-a").text, s['href'], int(s.find(class_="tc-amount").text.replace(" ", "")),
                         float(s.find(class_="tc-price").div.text.replace(" ₽", "")))
 
         if s.has_attr('data-online'):
@@ -83,7 +83,7 @@ def get_best_sellers(root):
 
 def send_telegram(msg):
     requests.get(
-        'https://api.telegram.org/bot1650132772:AAFKhBoYLpdfkzDlKmsFyN7aEbb930MQx8s/sendMessage?chat_id=' + chat_id + '&text=' + msg)
+        'https://api.telegram.org/bot5069016350:AAEaAUK3uP17fRWaLdXYN0_5drsqjGmy2CA/sendMessage?chat_id=' + chat_id + '&text=' + msg)        
 
 
 def scanning():
@@ -93,7 +93,8 @@ def scanning():
         # how to make best seller affect to sellers
         for best_seller in best_sellers.set:
             if not best_seller.isSend:
-                msg = pattern_message.format(price=str(best_seller.price),
+                msg = pattern_message.format(name=str(best_seller.name),
+                                             price=str(best_seller.price),
                                              amount=str(best_seller.amount),
                                              link=best_seller.link)
                 if is_send_telegram.get():
@@ -105,15 +106,15 @@ def scanning():
 
 def start_scan():
     global RUNNING, server_id
-    if start_scan['text'] == "Start":
+    if start_scan['text'] == "Старт":
         RUNNING = True
-        start_scan.configure(text="Stop!")
-        status_label.config(text="WORK", width=10, height=1, bg="red", fg="white")
+        start_scan.configure(text="стоп!")
+        status_label.config(text="Сканируется", width=10, height=1, bg="green", fg="white")
         server_id = server_labels.get(combobox_servers.get())
     else:
         RUNNING = False
-        start_scan.configure(text="Start")
-        status_label.config(text="STOPPED", width=10, height=1, bg="green", fg="white")
+        start_scan.configure(text="Старт")
+        status_label.config(text="Остановлено", width=10, height=1, bg="red", fg="white")
         server_id = None
         sellers.clear()
 
@@ -121,16 +122,16 @@ def start_scan():
 def stop_scan():
     global RUNNING, server_id
     RUNNING = False
-    start_scan.configure(text="Start")
-    status_label.config(text="STOPPED", width=10, height=1, bg="green", fg="white")
+    start_scan.configure(text="Старт")
+    status_label.config(text="Остановлено", width=10, height=1, bg="red", fg="white")
     server_id = None
     sellers.clear()
 
 
 # Define here buttons to use global
 # GUI Buttons
-start_scan = tk.Button(window, text="Start", bd=2, width=20, command=start_scan)
-status_label = tk.Label(window, text="STOPPED", bd=5, width=10, height=1, bg="green", fg="white")
+start_scan = tk.Button(window, text="Старт", bd=2, width=20, command=start_scan)
+status_label = tk.Label(window, text="Выключено", bd=5, width=10, height=1, bg="red", fg="white")
 
 
 def main():
@@ -139,12 +140,12 @@ def main():
     input_in_stock.set(0)
     amount_best_sellers.set(0)
 
-    is_send_telegram.set(False)
+    is_send_telegram.set(True)
     get_servers(getDataFromURL())
 
     window.title("Quick helper")
     # Server's name combobox
-    tk.Label(window, text='Choose server', bd=5).grid(row=0, column=0)
+    tk.Label(window, text='Выберать сервер', bd=5).grid(row=0, column=0)
     combobox_servers = ttk.Combobox(window, values=list(server_labels.keys()), justify="center",
                                     textvariable=server_name, state="readonly")
     combobox_servers.bind('<<ComboboxSelected>>', lambda event: stop_scan())
@@ -153,10 +154,10 @@ def main():
     combobox_servers.current(3)
     server_id = server_labels.get(combobox_servers.get())
 
-    tk.Label(window, text='Price(not more then): ', bd=5).grid(row=1, column=0)
+    tk.Label(window, text='Макс цена: ', bd=5).grid(row=1, column=0)
     tk.Entry(window, width=20, textvariable=input_price).grid(row=1, column=1)
 
-    tk.Label(window, text='Amount(not less then): ', bd=5).grid(row=2, column=0)
+    tk.Label(window, text='Мин кол-во: ', bd=5).grid(row=2, column=0)
     tk.Entry(window, width=20, textvariable=input_in_stock).grid(row=2, column=1)
 
     amountBestSellersLabel = tk.Label(window, textvariable=amount_best_sellers)
@@ -166,7 +167,7 @@ def main():
     start_scan.grid(row=4, column=1)
     status_label.grid(row=4, column=0)
 
-    tk.Checkbutton(window, text='Telegram', bd=5, var=is_send_telegram).grid(row=0, column=2)
+    tk.Checkbutton(window, text='Телеграм', bd=5, var=is_send_telegram).grid(row=0, column=2)
 
     window.after(get_time_refresh(), scanning)  # After 1 second, call scanning
     window.mainloop()

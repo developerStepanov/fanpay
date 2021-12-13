@@ -1,5 +1,6 @@
 class Seller:
-    def __init__(self, link, amount, price):
+    def __init__(self, name, link, amount, price):
+        self.name = name
         self.link = link
         self.amount = amount
         self.price = price
