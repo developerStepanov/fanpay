@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 from Seller import Seller
 from SellersSet import SellersSet
 
-url = 'https://funpay.ru/en/chips/16/'
+url = 'https://funpay.ru/chips/16/'
 
 server_labels = {}
 window = tk.Tk()
@@ -25,7 +25,7 @@ amount_best_sellers = tk.StringVar()
 
 pattern_message = "Имя:%20{name}%0AЦена:%20{price}%0AКол-во:%20{amount}%0AСсылка:%20{link}"
 
-RUNNING = False  # Global flag -> when app is starting then it is alredy running
+RUNNING = False  # Global flag -> when app is starting then it is already running
 
 sellers = SellersSet()
 
@@ -35,7 +35,8 @@ def get_time_refresh():
 
 
 def getDataFromURL():
-    response = requests.get(url, headers={"Cookie": "cy=rub;"})
+    response = requests.get(url)
+
     root = BeautifulSoup(response.text, 'lxml')
     return root
 
