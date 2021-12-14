@@ -49,7 +49,7 @@ def get_servers(root):
 
 def get_online_sellers(root):
     for s in root.find_all(class_="tc-item", attrs={"data-server": server_id}):
-        seller = Seller(s.find("span", class_="pseudo-a").text, s['href'], int(s.find(class_="tc-amount").text.replace(" ", "")),
+        seller = Seller(s.find("div", class_="tc-user").find(class_="media-user-name").text, s['href'], int(s.find(class_="tc-amount").text.replace(" ", "")),
                         float(s.find(class_="tc-price").div.text.replace(" ₽", "")))
 
         if s.has_attr('data-online'):
