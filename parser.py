@@ -35,7 +35,8 @@ def get_time_refresh():
 
 
 def getDataFromURL():
-    response = requests.get(url)
+    response = requests.get(url, headers={'accept-language': 'en-US,en;q=0.5',
+                                          'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'})
 
     root = BeautifulSoup(response.text, 'lxml')
     return root
@@ -146,13 +147,13 @@ def main():
 
     window.title("Quick helper")
     # Server's name combobox
-    tk.Label(window, text='Выберать сервер', bd=5).grid(row=0, column=0)
+    tk.Label(window, text='Выбрать сервер', bd=5).grid(row=0, column=0)
     combobox_servers = ttk.Combobox(window, values=list(server_labels.keys()), justify="center",
                                     textvariable=server_name, state="readonly")
     combobox_servers.bind('<<ComboboxSelected>>', lambda event: stop_scan())
     combobox_servers.grid(row=0, column=1)
-    # 3 == PC(STANDART)
-    combobox_servers.current(3)
+    # 5 == PC(STANDART)
+    combobox_servers.current(5)
     server_id = server_labels.get(combobox_servers.get())
 
     tk.Label(window, text='Макс цена: ', bd=5).grid(row=1, column=0)
