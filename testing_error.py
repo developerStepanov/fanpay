@@ -1,5 +1,4 @@
 import requests
-import time
 import datetime
 
 url = 'https://funpay.ru/chips/16/'
