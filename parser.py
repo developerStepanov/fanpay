@@ -32,7 +32,7 @@ sellers = SellersSet()
 
 
 def get_time_refresh():
-    return random.randint(600, 1200)
+    return random.randint(900, 1200)
 
 
 def getDataFromURL():
@@ -44,14 +44,11 @@ def getDataFromURL():
         time.sleep(15)
         getDataFromURL()
 
-
-
 def get_servers(root):
     for servers in root.find_all("select", attrs={"name": "server"}):
         for server in servers.find_all('option'):
             if server['value'] and server.text:
                 server_labels[server.text] = server['value']
-
 
 def get_online_sellers(root):
     for s in root.find_all(class_="tc-item", attrs={"data-server": server_id}):
@@ -62,7 +59,6 @@ def get_online_sellers(root):
             sellers.add(seller)
         else:
             sellers.remove(seller)
-
 
 def get_best_sellers(root):
     get_online_sellers(root)
@@ -94,18 +90,20 @@ def send_telegram(msg):
 
 def scanning():
     if RUNNING:
-        best_sellers = get_best_sellers(getDataFromURL())
-        amount_best_sellers.set(len(best_sellers.set))
-        # how to make best seller affect to sellers
-        for best_seller in best_sellers.set:
-            if not best_seller.isSend:
-                msg = pattern_message.format(name=str(best_seller.name),
-                                             price=str(best_seller.price),
-                                             amount=str(best_seller.amount),
-                                             link=best_seller.link)
-                if is_send_telegram.get():
-                    send_telegram(msg)
-                    best_seller.sended()
+        root = getDataFromURL()
+        if isinstance(root, BeautifulSoup):
+            best_sellers = get_best_sellers(getDataFromURL())
+            amount_best_sellers.set(len(best_sellers.set))
+            # how to make best seller affect to sellers
+            for best_seller in best_sellers.set:
+                if not best_seller.isSend:
+                    msg = pattern_message.format(name=str(best_seller.name),
+                                                 price=str(best_seller.price),
+                                                 amount=str(best_seller.amount),
+                                                 link=best_seller.link)
+                    if is_send_telegram.get():
+                        send_telegram(msg)
+                        best_seller.sended()
 
     window.after(get_time_refresh(), scanning)
 
