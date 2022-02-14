@@ -1,13 +1,14 @@
 import tkinter as tk
 from tkinter import ttk
 
+import time
 import requests
 import random
 from bs4 import BeautifulSoup
 from Seller import Seller
 from SellersSet import SellersSet
 
-url = 'https://funpay.ru/chips/16/'
+url = 'https://funpay.com/chips/16/'
 
 server_labels = {}
 window = tk.Tk()
@@ -35,11 +36,14 @@ def get_time_refresh():
 
 
 def getDataFromURL():
-    response = requests.get(url, headers={'accept-language': 'en-US,en;q=0.5',
-                                          'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'})
+    try:
+        response = requests.get(url, headers={'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'})
+        root = BeautifulSoup(response.text, 'lxml')
+        return root
+    except Exception:
+        time.sleep(15)
+        getDataFromURL()
 
-    root = BeautifulSoup(response.text, 'lxml')
-    return root
 
 
 def get_servers(root):
