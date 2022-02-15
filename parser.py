@@ -92,7 +92,7 @@ def scanning():
     if RUNNING:
         root = getDataFromURL()
         if isinstance(root, BeautifulSoup):
-            best_sellers = get_best_sellers(getDataFromURL())
+            best_sellers = get_best_sellers(root)
             amount_best_sellers.set(len(best_sellers.set))
             # how to make best seller affect to sellers
             for best_seller in best_sellers.set:
