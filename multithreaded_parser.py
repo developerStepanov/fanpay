@@ -4,6 +4,7 @@ from tkinter import ttk
 import time
 import requests
 import random
+import threading
 from bs4 import BeautifulSoup
 from Seller import Seller
 from SellersSet import SellersSet
@@ -92,28 +93,29 @@ def get_best_sellers(root):
 
 def send_telegram(msg):
     requests.get(
-        'https://api.telegram.org/bot5069016350:AAEaAUK3uP17fRWaLdXYN0_5drsqjGmy2CA/sendMessage?chat_id=' + chat_id + '&text=' + msg)        
-
+        'https://api.telegram.org/bot5069016350:AAEaAUK3uP17fRWaLdXYN0_5drsqjGmy2CA/sendMessage?chat_id=' + chat_id + '&text=' + msg)
 
 def scanning():
-    if RUNNING:
-        root = getDataFromURL()
-        if isinstance(root, BeautifulSoup):
-            best_sellers = get_best_sellers(getDataFromURL())
-            amount_best_sellers.set(len(best_sellers.set))
-            # how to make best seller affect to sellers
-            for best_seller in best_sellers.set:
-                if not best_seller.isSend:
-                    msg = pattern_message.format(name=str(best_seller.name),
-                                                 price=str(best_seller.price),
-                                                 amount=str(best_seller.amount),
-                                                 link=best_seller.link)
-                    if is_send_telegram.get():
-                        send_telegram(msg)
-                        best_seller.sended()
+    while True:
+        if RUNNING:
+            do_scan()
+        time.sleep(5)
 
-    window.after(get_time_refresh(), scanning)
-
+def do_scan():
+    root = getDataFromURL()
+    if isinstance(root, BeautifulSoup):
+        best_sellers = get_best_sellers(getDataFromURL())
+        amount_best_sellers.set(len(best_sellers.set))
+        # how to make best seller affect to sellers
+        for best_seller in best_sellers.set:
+            if not best_seller.isSend:
+                msg = pattern_message.format(name=str(best_seller.name),
+                                             price=str(best_seller.price),
+                                             amount=str(best_seller.amount),
+                                             link=best_seller.link)
+                if is_send_telegram.get():
+                    send_telegram(msg)
+                    best_seller.sended()
 
 def start_scan():
     global RUNNING, server_id
@@ -180,9 +182,9 @@ def main():
 
     tk.Checkbutton(window, text='Телеграм', bd=5, var=is_send_telegram).grid(row=0, column=2)
 
-    window.after(get_time_refresh(), scanning)  # After 1 second, call scanning
+    main_logic = threading.Thread(target=scanning)
+    main_logic.start()
     window.mainloop()
-
 
 if __name__ == '__main__':
     main()
