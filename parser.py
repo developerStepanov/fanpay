@@ -144,6 +144,9 @@ def stop_scan():
 start_scan = tk.Button(window, text="Старт", bd=2, width=20, command=start_scan)
 status_label = tk.Label(window, text="Выключено", bd=5, width=10, height=1, bg="red", fg="white")
 
+def stop_logic_thread():
+
+
 
 def main():
     global combobox_servers, server_id
@@ -181,6 +184,7 @@ def main():
     tk.Checkbutton(window, text='Телеграм', bd=5, var=is_send_telegram).grid(row=0, column=2)
 
     window.after(get_time_refresh(), scanning)  # After 1 second, call scanning
+    window.protocol("WM_DELETE_WINDOW", stop_logic_thread)
     window.mainloop()
 
 
