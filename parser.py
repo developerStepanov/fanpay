@@ -144,10 +144,6 @@ def stop_scan():
 start_scan = tk.Button(window, text="Старт", bd=2, width=20, command=start_scan)
 status_label = tk.Label(window, text="Выключено", bd=5, width=10, height=1, bg="red", fg="white")
 
-def stop_logic_thread():
-
-
-
 def main():
     global combobox_servers, server_id
     input_price.set(0)
